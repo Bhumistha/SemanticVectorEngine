@@ -1,26 +1,26 @@
-fastapi
-uvicorn[standard]
+fastapi==0.110.0
+uvicorn[standard]==0.29.0
 
-sentence-transformers
-faiss-cpu
-torch
-transformers
+sentence-transformers==2.7.0
+faiss-cpu==1.7.4
+torch==2.2.2
+transformers==4.40.1
 
-numpy
-scikit-learn
-pandas
-scipy
+numpy==1.26.4
+scikit-learn==1.4.2
+pandas==2.2.2
+scipy==1.12.0
 
-pydantic
-requests
+pydantic==2.7.1
+requests==2.31.0
 
-rank-bm25
-loguru
+rank-bm25==0.2.2
+loguru==0.7.2
 
-matplotlib
-plotly
+matplotlib==3.8.4
+plotly==5.22.0
 altair==4.2.2
 
-umap-learn
+umap-learn==0.5.6
 
-streamlit
+streamlit==1.32.2
