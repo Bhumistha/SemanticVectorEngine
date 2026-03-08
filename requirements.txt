@@ -1,26 +1,23 @@
-fastapi==0.110.0
-uvicorn[standard]==0.29.0
+streamlit
+altair==4.2.2
+plotly
 
-sentence-transformers==2.7.0
-faiss-cpu==1.13.2
-torch
-transformers
+fastapi
+uvicorn
+
+sentence-transformers
+faiss-cpu
 
 numpy
-scikit-learn
 pandas
+scikit-learn
 scipy
-
-pydantic
-requests
 
 rank-bm25
 loguru
 
 matplotlib
-plotly
-altair==4.2.2
-
 umap-learn
 
-streamlit
+requests
+pydantic
