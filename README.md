@@ -7,7 +7,7 @@ The project is built with **FastAPI for backend APIs**, **Streamlit for an inter
 ![FastAPI](https://img.shields.io/badge/FastAPI-API-green)
 ![FAISS](https://img.shields.io/badge/VectorSearch-FAISS-orange)
 ![Docker](https://img.shields.io/badge/Container-Docker-blue)
-![License](https://img.shields.io/badge/License-MIT-yellow
+![License](https://img.shields.io/badge/License-MIT-yellow)
 ---
 
 ## Highlights
