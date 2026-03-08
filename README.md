@@ -3,7 +3,11 @@
 SemanticVectorEngine is a scalable **AI-powered semantic search system** that retrieves contextually similar results using sentence embeddings and vector similarity search. The system integrates **FAISS indexing, semantic caching, query clustering, and cross-encoder reranking** to improve search performance and accuracy.
 
 The project is built with **FastAPI for backend APIs**, **Streamlit for an interactive interface**, and **Docker for containerized deployment**.
-
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-API-green)
+![FAISS](https://img.shields.io/badge/VectorSearch-FAISS-orange)
+![Docker](https://img.shields.io/badge/Container-Docker-blue)
+![License](https://img.shields.io/badge/License-MIT-yellow
 ---
 
 ## Highlights
