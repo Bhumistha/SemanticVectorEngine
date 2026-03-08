@@ -14,6 +14,8 @@ from cache.semantic_cache import SemanticCache
 from config import TOP_K, CACHE_THRESHOLD, MODEL_NAME
 
 
+print("Starting FastAPI service...")
+
 # -------- Ensure Logs Folder --------
 os.makedirs("logs", exist_ok=True)
 
@@ -24,6 +26,7 @@ logging.basicConfig(
 )
 
 app = FastAPI()
+
 
 # -------- Global Variables --------
 model = None
@@ -38,22 +41,27 @@ ready = False
 def load_resources():
     global model, documents, index, cluster_centers, cache, ready
 
-    print("Loading model and FAISS index...")
+    try:
+        print("Loading model and FAISS index...")
 
-    model = SentenceTransformer(MODEL_NAME)
+        model = SentenceTransformer(MODEL_NAME)
 
-    with open("data/newsgroups.pkl", "rb") as f:
-        documents = pickle.load(f)
+        with open("data/newsgroups.pkl", "rb") as f:
+            documents = pickle.load(f)
 
-    index = faiss.read_index("data/faiss_index.index")
+        index = faiss.read_index("data/faiss_index.index")
 
-    with open("data/cluster_centers.pkl", "rb") as f:
-        cluster_centers = pickle.load(f)
+        with open("data/cluster_centers.pkl", "rb") as f:
+            cluster_centers = pickle.load(f)
 
-    cache = SemanticCache(threshold=CACHE_THRESHOLD)
+        cache = SemanticCache(threshold=CACHE_THRESHOLD)
 
-    ready = True
-    print("Resources loaded successfully")
+        ready = True
+
+        print("Resources loaded successfully")
+
+    except Exception as e:
+        print("Startup error:", str(e))
 
 
 @app.on_event("startup")
@@ -62,11 +70,13 @@ def startup():
     thread.start()
 
 
+# -------- Root Endpoint --------
 @app.get("/")
 def root():
-    return {"status": "API starting"}
+    return {"status": "API running", "ready": ready}
 
 
+# -------- Health Check --------
 @app.get("/health")
 def health():
     return {"ready": ready}
@@ -87,6 +97,7 @@ class QueryRequest(BaseModel):
     query: str
 
 
+# -------- Main Query Endpoint --------
 @app.post("/query")
 def query_api(request: QueryRequest):
 
