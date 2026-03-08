@@ -48,7 +48,16 @@ Query → Embedding Generation → Semantic Cache Check → Cluster Routing → 
 
 Example interface of the semantic search system:
 
-![Demo](docs/demo.png)
+## Demo
+
+### Search Interface
+![Demo1](docs/demo1.png)
+
+### Query Results
+![Demo2](docs/demo2.png)
+
+### System Response
+![Demo3](docs/demo3.png)
 
 ---
 
