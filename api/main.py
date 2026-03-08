@@ -12,96 +12,89 @@ from sentence_transformers import SentenceTransformer
 from cache.semantic_cache import SemanticCache
 from config import TOP_K, CACHE_THRESHOLD, MODEL_NAME
 
-
-# -------- Ensure Logs Folder Exists --------
+# Ensure logs folder
 os.makedirs("logs", exist_ok=True)
 
-
-# -------- Logging Configuration --------
 logging.basicConfig(
     filename="logs/queries.log",
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-
-# -------- Initialize FastAPI --------
 app = FastAPI()
 
+# -------- Global resources --------
+model = None
+documents = None
+index = None
+cluster_centers = None
+cache = None
 
-# -------- Load Model --------
-model = SentenceTransformer(MODEL_NAME)
+
+# -------- Load heavy resources AFTER server starts --------
+@app.on_event("startup")
+def load_resources():
+    global model, documents, index, cluster_centers, cache
+
+    print("Loading model and FAISS index...")
+
+    model = SentenceTransformer(MODEL_NAME)
+
+    with open("data/newsgroups.pkl", "rb") as f:
+        documents = pickle.load(f)
+
+    index = faiss.read_index("data/faiss_index.index")
+
+    with open("data/cluster_centers.pkl", "rb") as f:
+        cluster_centers = pickle.load(f)
+
+    cache = SemanticCache(threshold=CACHE_THRESHOLD)
+
+    print("Resources loaded successfully")
 
 
-# -------- Query Embedding Cache --------
+@app.get("/")
+def root():
+    return {"message": "Semantic Vector Engine API running"}
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
 @lru_cache(maxsize=1000)
 def embed_query(text: str):
-
     embedding = model.encode(text)
-
     return np.array(embedding).astype("float32")
 
 
-# -------- Load Documents --------
-with open("data/newsgroups.pkl", "rb") as f:
-    documents = pickle.load(f)
-
-
-# -------- Load FAISS Index --------
-index = faiss.read_index("data/faiss_index.index")
-
-
-# -------- Load Cluster Centers --------
-with open("data/cluster_centers.pkl", "rb") as f:
-    cluster_centers = pickle.load(f)
-
-
-# -------- Initialize Semantic Cache --------
-cache = SemanticCache(threshold=CACHE_THRESHOLD)
-
-
-# -------- Cluster Detection --------
 def get_query_cluster(query_embedding):
-
-    distances = np.linalg.norm(
-        cluster_centers - query_embedding,
-        axis=1
-    )
-
-    cluster_id = np.argmin(distances)
-
-    return int(cluster_id)
+    distances = np.linalg.norm(cluster_centers - query_embedding, axis=1)
+    return int(np.argmin(distances))
 
 
-# -------- Request Schema --------
 class QueryRequest(BaseModel):
     query: str
 
 
-# -------- Main Query Endpoint --------
 @app.post("/query")
 def query_api(request: QueryRequest):
 
-    start_time = time.time()
-
+    start = time.time()
     query = request.query
 
-    logging.info(f"User Query: {query}")
+    logging.info(f"Query: {query}")
 
-    # Convert query → embedding (cached)
     query_embedding = embed_query(query)
 
-    # Detect cluster
     query_cluster = get_query_cluster(query_embedding)
 
-    # -------- Check Cache --------
     cached, similarity = cache.lookup(query_embedding, query_cluster)
 
     if cached:
 
-        logging.info(f"Cache HIT | Query: {query}")
-
-        latency = round((time.time() - start_time) * 1000, 2)
+        latency = round((time.time() - start) * 1000, 2)
 
         return {
             "query": query,
@@ -109,13 +102,9 @@ def query_api(request: QueryRequest):
             "latency_ms": latency,
             "matched_query": cached["query"],
             "similarity_score": float(similarity),
-            "dominant_cluster": cached["cluster"],
             "results": cached["result"]
         }
 
-    logging.info(f"Cache MISS | Query: {query}")
-
-    # -------- FAISS Search --------
     query_vector = query_embedding.reshape(1, -1)
 
     distances, indices = index.search(query_vector, TOP_K)
@@ -123,7 +112,6 @@ def query_api(request: QueryRequest):
     results = []
 
     for score, idx in zip(distances[0], indices[0]):
-
         if idx == -1:
             continue
 
@@ -133,44 +121,25 @@ def query_api(request: QueryRequest):
             "text": documents[idx][:300]
         })
 
-    # -------- Store in Cache --------
     cache.add(query, query_embedding, results, query_cluster)
 
-    latency = round((time.time() - start_time) * 1000, 2)
+    latency = round((time.time() - start) * 1000, 2)
 
     return {
         "query": query,
         "cache_hit": False,
-        "dominant_cluster": query_cluster,
         "result_count": len(results),
         "latency_ms": latency,
         "results": results
     }
 
 
-# -------- Cache Stats Endpoint --------
 @app.get("/cache/stats")
 def cache_stats():
-
     return cache.stats()
 
 
-# -------- Clear Cache Endpoint --------
 @app.delete("/cache")
 def clear_cache():
-
     cache.clear()
-
-    return {
-        "message": "Cache cleared successfully"
-    }
-
-
-# -------- Health Endpoint --------
-@app.get("/health")
-def health():
-
-    return {
-        "status": "ok",
-        "service": "semantic-search-api"
-    }
+    return {"message": "Cache cleared"}

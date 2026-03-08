@@ -6,7 +6,7 @@ import plotly.express as px
 import pickle
 import numpy as np
 
-API_URL = "http://localhost:8000/query"
+API_URL = "https://semanticvectorengine-mxwpzxw9l3b3qpnjamaze9.streamlit.app/"
 
 st.set_page_config(
     page_title="Semantic Vector Engine",
