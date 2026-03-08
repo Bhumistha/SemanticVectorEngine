@@ -1,160 +1,178 @@
-SemanticVectorEngine
+# SemanticVectorEngine
 
+SemanticVectorEngine is a scalable **AI-powered semantic search system** that retrieves contextually similar results using sentence embeddings and vector similarity search. The system integrates **FAISS indexing, semantic caching, query clustering, and cross-encoder reranking** to improve search performance and accuracy.
 
+The project is built with **FastAPI for backend APIs**, **Streamlit for an interactive interface**, and **Docker for containerized deployment**.
 
+---
 
+## Highlights
 
+* Production-style semantic search pipeline
+* Fast vector similarity search using **FAISS**
+* **Semantic caching** to avoid repeated computations
+* **Query clustering** for optimized search routing
+* **Cross-encoder reranking** for improved result relevance
+* **FastAPI backend** for scalable API services
+* **Streamlit interface** for interactive querying
+* **Dockerized deployment** for portability
 
+---
 
+## Features
 
-SemanticVectorEngine is a scalable AI-powered semantic search system that retrieves contextually similar results using sentence embeddings and vector similarity search. The system integrates FAISS indexing, semantic caching, query clustering, and cross-encoder reranking to improve search performance and accuracy.
+* Semantic similarity search using **Sentence Transformers**
+* High-performance vector search using **FAISS**
+* Semantic caching for faster repeated queries
+* Query clustering for efficient routing
+* Cross-encoder reranking for improved ranking quality
+* REST API built with **FastAPI**
+* Interactive UI using **Streamlit**
+* Containerized deployment using **Docker**
 
-The project is built with FastAPI for backend APIs, Streamlit for an interactive interface, and Docker for containerized deployment.
+---
 
-Highlights
-
-Production-style semantic search pipeline
-
-Fast vector similarity search using FAISS
-
-Semantic caching to avoid repeated computations
-
-Query clustering for optimized search routing
-
-Cross-encoder reranking for improved result relevance
-
-FastAPI backend for scalable API services
-
-Streamlit interface for interactive querying
-
-Dockerized deployment for portability
-
-Features
-
-Semantic similarity search using Sentence Transformers
-
-High-performance vector search using FAISS
-
-Semantic caching for faster repeated queries
-
-Query clustering for efficient routing
-
-Cross-encoder reranking for improved ranking quality
-
-REST API built with FastAPI
-
-Interactive UI using Streamlit
-
-Containerized deployment using Docker
-
-System Architecture
+## System Architecture
 
 Search pipeline flow:
 
-Query
-↓
-Embedding Generation
-↓
-Semantic Cache Check
-↓
-Cluster Routing
-↓
-FAISS Vector Search
-↓
-Cross Encoder Reranking
-↓
-Final Ranked Results
+Query → Embedding Generation → Semantic Cache Check → Cluster Routing → FAISS Vector Search → Cross Encoder Reranking → Final Ranked Results
 
-Architecture Diagram:
+### Architecture Diagram
 
-Demo
+![Architecture](docs/architecture.png)
+
+---
+
+## Demo
 
 Example interface of the semantic search system:
 
-Tech Stack
+![Demo](docs/demo.png)
 
-Python
-FastAPI
-FAISS
-Sentence Transformers
-Streamlit
-NumPy
-Scikit-learn
-Docker
+---
 
-Project Structure
+## Tech Stack
 
-api/ — FastAPI backend
-services/ — Search pipeline services
-vector_db/ — FAISS index management
-clustering/ — Query clustering logic
-cache/ — Semantic cache implementation
-analysis/ — Cluster analysis and visualization
-scripts/ — Index building scripts
-tests/ — Unit tests
-docs/ — Architecture diagrams
-streamlit_app.py — Streamlit UI
+* Python
+* FastAPI
+* FAISS
+* Sentence Transformers
+* Streamlit
+* NumPy
+* Scikit-learn
+* Docker
 
-Installation
+---
 
-Clone the repository:
+## Performance Optimization
 
-git clone https://github.com/Bhumistha/SemanticVectorEngine.git
+The system improves search efficiency through several optimization techniques:
+
+* **Semantic caching** reduces redundant embedding computations
+* **Query clustering** narrows the search space for faster retrieval
+* **FAISS indexing** enables efficient approximate nearest neighbor search
+* **Cross-encoder reranking** improves final ranking quality
+
+---
+
+## Use Cases
+
+* Semantic document search systems
+* Knowledge base and FAQ retrieval
+* AI-powered recommendation systems
+* Research paper or article search
+* Customer support automation systems
+
+---
+
+## Project Structure
+
+* **api/** – FastAPI backend
+* **services/** – Search pipeline services
+* **vector_db/** – FAISS index management
+* **clustering/** – Query clustering logic
+* **cache/** – Semantic cache implementation
+* **analysis/** – Cluster analysis and visualization
+* **scripts/** – Index building scripts
+* **tests/** – Unit tests
+* **docs/** – Architecture diagrams
+* **streamlit_app.py** – Streamlit UI
+
+---
+
+## Installation
+
+Clone the repository
+
+git clone [https://github.com/Bhumistha/SemanticVectorEngine.git](https://github.com/Bhumistha/SemanticVectorEngine.git)
 
 cd SemanticVectorEngine
 
-Create virtual environment:
+Create virtual environment
 
 python -m venv venv
 
 venv\Scripts\activate
 
-Install dependencies:
+Install dependencies
 
 pip install -r requirements.txt
 
-Run the API
+---
 
-Start the FastAPI server:
+## Run the API
+
+Start the FastAPI server
 
 uvicorn api.main:app --reload
 
 API will be available at:
 
-http://127.0.0.1:8000
+[http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 Interactive API documentation:
 
-http://127.0.0.1:8000/docs
+[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
-Run the Streamlit Interface
+---
+
+## Run the Streamlit Interface
 
 streamlit run streamlit_app.py
 
 Open in browser:
 
-http://localhost:8501
+[http://localhost:8501](http://localhost:8501)
 
-Docker Deployment
+---
 
-Build Docker image:
+## Docker Deployment
+
+##Build Docker image
 
 docker build -t semantic-vector-engine .
 
-Run container:
+##Run container
 
 docker run -p 8000:8000 semantic-vector-engine
 
-Future Improvements
+---
 
-Distributed FAISS indexing
-Hybrid search (semantic + keyword search)
-Query intent detection
-Cloud deployment with scalable vector databases
+## Future Improvements
 
-Author
+* Distributed FAISS indexing
+* Hybrid search combining semantic and keyword search
+* Query intent detection
+* Cloud deployment with scalable vector databases
 
-Bhumistha Sahoo
+---
 
-GitHub:
-https://github.com/Bhumistha
+## Author
+
+**Bhumistha Sahoo**
+
+GitHub
+[https://github.com/Bhumistha](https://github.com/Bhumistha)
+
+
