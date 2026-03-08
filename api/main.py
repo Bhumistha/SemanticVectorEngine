@@ -6,13 +6,15 @@ import numpy as np
 import logging
 import os
 import time
+import threading
 from functools import lru_cache
 from sentence_transformers import SentenceTransformer
 
 from cache.semantic_cache import SemanticCache
 from config import TOP_K, CACHE_THRESHOLD, MODEL_NAME
 
-# Ensure logs folder
+
+# -------- Ensure Logs Folder --------
 os.makedirs("logs", exist_ok=True)
 
 logging.basicConfig(
@@ -23,18 +25,18 @@ logging.basicConfig(
 
 app = FastAPI()
 
-# -------- Global resources --------
+# -------- Global Variables --------
 model = None
 documents = None
 index = None
 cluster_centers = None
 cache = None
+ready = False
 
 
-# -------- Load heavy resources AFTER server starts --------
-@app.on_event("startup")
+# -------- Background Loader --------
 def load_resources():
-    global model, documents, index, cluster_centers, cache
+    global model, documents, index, cluster_centers, cache, ready
 
     print("Loading model and FAISS index...")
 
@@ -50,17 +52,24 @@ def load_resources():
 
     cache = SemanticCache(threshold=CACHE_THRESHOLD)
 
+    ready = True
     print("Resources loaded successfully")
+
+
+@app.on_event("startup")
+def startup():
+    thread = threading.Thread(target=load_resources)
+    thread.start()
 
 
 @app.get("/")
 def root():
-    return {"message": "Semantic Vector Engine API running"}
+    return {"status": "API starting"}
 
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"ready": ready}
 
 
 @lru_cache(maxsize=1000)
@@ -81,7 +90,10 @@ class QueryRequest(BaseModel):
 @app.post("/query")
 def query_api(request: QueryRequest):
 
-    start = time.time()
+    if not ready:
+        return {"message": "Model loading, try again shortly"}
+
+    start_time = time.time()
     query = request.query
 
     logging.info(f"Query: {query}")
@@ -93,15 +105,12 @@ def query_api(request: QueryRequest):
     cached, similarity = cache.lookup(query_embedding, query_cluster)
 
     if cached:
-
-        latency = round((time.time() - start) * 1000, 2)
+        latency = round((time.time() - start_time) * 1000, 2)
 
         return {
             "query": query,
             "cache_hit": True,
             "latency_ms": latency,
-            "matched_query": cached["query"],
-            "similarity_score": float(similarity),
             "results": cached["result"]
         }
 
@@ -112,6 +121,7 @@ def query_api(request: QueryRequest):
     results = []
 
     for score, idx in zip(distances[0], indices[0]):
+
         if idx == -1:
             continue
 
@@ -123,23 +133,11 @@ def query_api(request: QueryRequest):
 
     cache.add(query, query_embedding, results, query_cluster)
 
-    latency = round((time.time() - start) * 1000, 2)
+    latency = round((time.time() - start_time) * 1000, 2)
 
     return {
         "query": query,
         "cache_hit": False,
-        "result_count": len(results),
         "latency_ms": latency,
         "results": results
     }
-
-
-@app.get("/cache/stats")
-def cache_stats():
-    return cache.stats()
-
-
-@app.delete("/cache")
-def clear_cache():
-    cache.clear()
-    return {"message": "Cache cleared"}
