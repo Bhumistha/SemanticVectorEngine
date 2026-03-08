@@ -2,25 +2,25 @@ fastapi==0.110.0
 uvicorn[standard]==0.29.0
 
 sentence-transformers==2.7.0
-faiss-cpu==1.7.4
-torch==2.2.2
-transformers==4.40.1
+faiss-cpu==1.13.2
+torch
+transformers
 
-numpy==1.26.4
-scikit-learn==1.4.2
-pandas==2.2.2
-scipy==1.12.0
+numpy
+scikit-learn
+pandas
+scipy
 
-pydantic==2.7.1
-requests==2.31.0
+pydantic
+requests
 
-rank-bm25==0.2.2
-loguru==0.7.2
+rank-bm25
+loguru
 
-matplotlib==3.8.4
-plotly==5.22.0
+matplotlib
+plotly
 altair==4.2.2
 
-umap-learn==0.5.6
+umap-learn
 
-streamlit==1.32.2
+streamlit
