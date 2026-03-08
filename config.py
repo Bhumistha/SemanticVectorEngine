@@ -1,0 +1,3 @@
+TOP_K = 3
+CACHE_THRESHOLD = 0.85
+MODEL_NAME = "all-MiniLM-L6-v2"

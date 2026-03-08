@@ -1,0 +1,15 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+
+logs/
+
+# ML artifacts
+*.pkl
+*.index
+
+# OS
+.DS_Store
