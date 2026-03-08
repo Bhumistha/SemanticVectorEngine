@@ -1,33 +1,146 @@
-# Semantic Search System
+# SemanticVectorEngine
 
-This project implements a scalable semantic search engine using:
+SemanticVectorEngine is a scalable AI-powered semantic search system that retrieves contextually similar results using sentence embeddings and vector similarity search. The system integrates FAISS indexing, semantic caching, query clustering, and cross-encoder reranking to improve retrieval performance and accuracy.
 
-- Sentence Transformers
-- FAISS vector database
-- Semantic caching
-- Query clustering
-- Cross encoder reranking
-- FastAPI deployment
-- Docker containerization
+The project is built with FastAPI for backend APIs, Streamlit for UI interaction, and Docker for containerized deployment.
 
-## Architecture
+---
 
-Query → Embedding → Cache → Cluster Routing → FAISS Search → Reranking → Results
+## Features
+
+- Semantic similarity search using Sentence Transformers
+- Fast vector similarity search using FAISS
+- Semantic caching to reduce redundant computations
+- Query clustering for optimized search routing
+- Cross-encoder reranking for improved result relevance
+- REST API built using FastAPI
+- Interactive interface using Streamlit
+- Dockerized deployment for portability
+
+---
+
+## System Architecture
+
+Search pipeline flow:
+
+Query  
+↓  
+Embedding Generation  
+↓  
+Semantic Cache Check  
+↓  
+Cluster Routing  
+↓  
+FAISS Vector Search  
+↓  
+Cross Encoder Reranking  
+↓  
+Final Ranked Results
+
+Architecture Diagram:
+
+![Architecture](docs/architecture.png)
+
+---
+
+## Tech Stack
+
+- Python  
+- FastAPI  
+- FAISS  
+- Sentence Transformers  
+- Streamlit  
+- NumPy  
+- Scikit-learn  
+- Docker  
+
+---
+
+## Project Structure
+
+api/                - FastAPI backend  
+services/           - Search pipeline services  
+vector_db/          - FAISS index management  
+clustering/         - Query clustering logic  
+cache/              - Semantic cache implementation  
+analysis/           - Cluster analysis and visualization  
+scripts/            - Index building scripts  
+tests/              - Unit tests  
+docs/               - Architecture diagrams  
+streamlit_app.py    - Streamlit UI  
+
+---
 
 ## Installation
 
-git clone repo
+Clone the repository:
 
-cd semantic-search-system
+git clone https://github.com/Bhumistha/SemanticVectorEngine.git
+
+cd SemanticVectorEngine
+
+Create virtual environment:
+
+python -m venv venv
+
+venv\Scripts\activate
+
+Install dependencies:
 
 pip install -r requirements.txt
 
-## Run API
+---
 
-uvicorn main:app --reload
+## Run the API
 
-## Docker
+Start the FastAPI server:
 
-docker build -t semantic-search .
+uvicorn api.main:app --reload
 
-docker run -p 8000:8000 semantic-search
+API will be available at:
+
+http://127.0.0.1:8000
+
+Interactive API documentation:
+
+http://127.0.0.1:8000/docs
+
+---
+
+## Run the Streamlit Interface
+
+streamlit run streamlit_app.py
+
+Open in browser:
+
+http://localhost:8501
+
+---
+
+## Docker Deployment
+
+Build Docker image:
+
+docker build -t semantic-vector-engine .
+
+Run container:
+
+docker run -p 8000:8000 semantic-vector-engine
+
+---
+
+## Future Improvements
+
+- Distributed FAISS indexing
+- Hybrid search (semantic + keyword)
+- Query intent detection
+- Cloud deployment with scalable vector databases
+
+---
+
+## Author
+
+Bhumistha Sahoo
+
+GitHub:  
+https://github.com/Bhumistha
