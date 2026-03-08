@@ -6,7 +6,7 @@ import plotly.express as px
 import pickle
 import numpy as np
 
-API_URL = "https://semanticvectorengine-mxwpzxw9l3b3qpnjamaze9.streamlit.app/"
+API_URL = "http://localhost:8000/query"
 
 st.set_page_config(
     page_title="Semantic Vector Engine",
@@ -28,7 +28,7 @@ def load_cluster_map():
         with open("data/membership_matrix.pkl", "rb") as f:
             membership = pickle.load(f)
 
-    except Exception as e:
+    except Exception:
         st.error("Cluster files not found in /data folder")
         st.stop()
 
@@ -88,6 +88,10 @@ color:{text};
 font-family: Inter, sans-serif;
 }}
 
+h1, h2, h3 {{
+color:{text} !important;
+}}
+
 .result-card {{
 background:{card};
 border-radius:12px;
@@ -95,6 +99,29 @@ padding:18px;
 margin-bottom:15px;
 border:1px solid {border};
 box-shadow:0 3px 12px rgba(0,0,0,0.08);
+color:{text};
+font-size:16px;
+line-height:1.6;
+}}
+
+.cache-hit {{
+background:#dcfce7;
+color:#065f46;
+padding:10px;
+border-radius:8px;
+font-weight:600;
+width:150px;
+text-align:center;
+}}
+
+.cache-miss {{
+background:#fef9c3;
+color:#92400e;
+padding:10px;
+border-radius:8px;
+font-weight:600;
+width:150px;
+text-align:center;
 }}
 
 .stButton > button {{
@@ -241,54 +268,26 @@ if st.session_state.page == "Home":
                 data = response.json()
             except:
 
-                st.markdown("""
-                <div style="
-                background:#fee2e2;
-                color:#7f1d1d;
-                padding:12px;
-                border-radius:8px;
-                font-weight:600;">
-                FastAPI server is not running
-                </div>
-                """, unsafe_allow_html=True)
-
+                st.error("FastAPI server is not running")
                 st.stop()
 
             latency = round((time.time()-start)*1000,2)
 
         st.session_state.latency.append(latency)
 
-        # CACHE STATUS
-
         if data.get("cache_hit"):
 
-            st.markdown("""
-            <div style="
-            background:#dcfce7;
-            color:#065f46;
-            padding:10px;
-            border-radius:8px;
-            font-weight:600;
-            width:150px;
-            text-align:center;">
-            ⚡ Cache Hit
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                '<div class="cache-hit">⚡ Cache Hit</div>',
+                unsafe_allow_html=True
+            )
 
         else:
 
-            st.markdown("""
-            <div style="
-            background:#fee2e2;
-            color:#991b1b;
-            padding:10px;
-            border-radius:8px;
-            font-weight:600;
-            width:150px;
-            text-align:center;">
-            Cache Miss
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                '<div class="cache-miss">Cache Miss</div>',
+                unsafe_allow_html=True
+            )
 
         st.write(f"Latency: {latency} ms")
 
