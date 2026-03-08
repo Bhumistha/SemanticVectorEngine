@@ -9,7 +9,7 @@ import numpy as np
 API_URL = "http://localhost:8000/query"
 
 st.set_page_config(
-    page_title="Semantic Search AI",
+    page_title="Semantic Vector Engine",
     page_icon="🔎",
     layout="wide"
 )
@@ -28,14 +28,13 @@ def load_cluster_map():
         with open("data/membership_matrix.pkl", "rb") as f:
             membership = pickle.load(f)
 
-    except:
+    except Exception as e:
         st.error("Cluster files not found in /data folder")
         st.stop()
 
     embedding_2d = np.array(embedding_2d)
     membership = np.array(membership)
 
-    # IMPORTANT FIX
     clusters = np.argmax(membership, axis=0)
 
     return embedding_2d, clusters
@@ -57,6 +56,7 @@ if "page" not in st.session_state:
 if "query" not in st.session_state:
     st.session_state.query = ""
 
+
 # ------------------------------------------------
 # THEME
 # ------------------------------------------------
@@ -65,14 +65,15 @@ dark_mode = st.sidebar.toggle("Dark Mode")
 
 if dark_mode:
     bg = "#0f172a"
-    text = "#f1f5f9"
+    text = "#f8fafc"
     card = "#1e293b"
     border = "#334155"
 else:
-    bg = "#f8fafc"
+    bg = "#ffffff"
     text = "#0f172a"
-    card = "#ffffff"
+    card = "#f8fafc"
     border = "#e2e8f0"
+
 
 # ------------------------------------------------
 # CSS
@@ -93,7 +94,7 @@ border-radius:12px;
 padding:18px;
 margin-bottom:15px;
 border:1px solid {border};
-box-shadow:0 3px 12px rgba(0,0,0,0.05);
+box-shadow:0 3px 12px rgba(0,0,0,0.08);
 }}
 
 .stButton > button {{
@@ -102,16 +103,19 @@ color:white;
 border-radius:8px;
 border:none;
 padding:8px 16px;
+font-weight:600;
 }}
 
 mark {{
-background:#fde68a;
+background:#facc15;
+color:black;
 padding:2px 6px;
 border-radius:4px;
 }}
 
 </style>
 """, unsafe_allow_html=True)
+
 
 # ------------------------------------------------
 # NAVBAR
@@ -120,27 +124,32 @@ border-radius:4px;
 col1,col2,col3,col4,col5,col6 = st.columns([2,1,1,1,1,1])
 
 with col1:
-    st.markdown("### SemanticSearch AI")
+    st.markdown(f"""
+    <h2 style="color:{text};font-weight:700;">
+    Semantic Vector Engine
+    </h2>
+    """, unsafe_allow_html=True)
 
 with col2:
-    if st.button("Home"):
+    if st.button("Home", key="nav_home"):
         st.session_state.page = "Home"
 
 with col3:
-    if st.button("Features"):
+    if st.button("Features", key="nav_features"):
         st.session_state.page = "Features"
 
 with col4:
-    if st.button("Docs"):
+    if st.button("Docs", key="nav_docs"):
         st.session_state.page = "Docs"
 
 with col5:
-    if st.button("Clusters"):
+    if st.button("Clusters", key="nav_clusters"):
         st.session_state.page = "Clusters"
 
 with col6:
-    if st.button("About"):
+    if st.button("About", key="nav_about"):
         st.session_state.page = "About"
+
 
 # ------------------------------------------------
 # SIDEBAR HISTORY
@@ -150,13 +159,14 @@ st.sidebar.title("Search History")
 
 if st.session_state.history:
 
-    for q in reversed(st.session_state.history[-5:]):
-        if st.sidebar.button(q):
+    for i,q in enumerate(reversed(st.session_state.history[-5:])):
+        if st.sidebar.button(q, key=f"history_{i}"):
             st.session_state.query = q
             st.session_state.page = "Home"
 
 else:
     st.sidebar.write("No searches yet")
+
 
 # ------------------------------------------------
 # HOME PAGE
@@ -176,7 +186,7 @@ if st.session_state.page == "Home":
         Intelligent search powered by embeddings.
         """)
 
-        st.markdown("### Try Example Searches")
+        st.markdown("### Example Searches")
 
         samples = [
             "satellite launches",
@@ -191,7 +201,9 @@ if st.session_state.page == "Home":
         search = False
 
         for i,q in enumerate(samples):
-            if cols[i].button(q):
+
+            if cols[i].button(q, key=f"sample_{i}"):
+
                 st.session_state.query = q
                 query = q
                 search = True
@@ -202,12 +214,13 @@ if st.session_state.page == "Home":
             placeholder="Ask anything..."
         )
 
-        search = st.button("Search") or search
+        search = st.button("Search", key="main_search") or search
 
     with col2:
+
         st.image(
             "https://cdn-icons-png.flaticon.com/512/4140/4140047.png",
-            width=320
+            width=300
         )
 
     # ------------------------------------------------
@@ -227,17 +240,55 @@ if st.session_state.page == "Home":
                 response = requests.post(API_URL, json={"query":query}, timeout=30)
                 data = response.json()
             except:
-                st.error("FastAPI server is not running")
+
+                st.markdown("""
+                <div style="
+                background:#fee2e2;
+                color:#7f1d1d;
+                padding:12px;
+                border-radius:8px;
+                font-weight:600;">
+                FastAPI server is not running
+                </div>
+                """, unsafe_allow_html=True)
+
                 st.stop()
 
             latency = round((time.time()-start)*1000,2)
 
         st.session_state.latency.append(latency)
 
+        # CACHE STATUS
+
         if data.get("cache_hit"):
-            st.success("⚡ Cache Hit")
+
+            st.markdown("""
+            <div style="
+            background:#dcfce7;
+            color:#065f46;
+            padding:10px;
+            border-radius:8px;
+            font-weight:600;
+            width:150px;
+            text-align:center;">
+            ⚡ Cache Hit
+            </div>
+            """, unsafe_allow_html=True)
+
         else:
-            st.warning("Cache Miss")
+
+            st.markdown("""
+            <div style="
+            background:#fee2e2;
+            color:#991b1b;
+            padding:10px;
+            border-radius:8px;
+            font-weight:600;
+            width:150px;
+            text-align:center;">
+            Cache Miss
+            </div>
+            """, unsafe_allow_html=True)
 
         st.write(f"Latency: {latency} ms")
 
@@ -250,7 +301,12 @@ if st.session_state.page == "Home":
             text = r["text"] if isinstance(r, dict) else str(r)
 
             if query.lower() in text.lower():
-                highlighted = text.replace(query, f"<mark>{query}</mark>")
+
+                highlighted = text.replace(
+                    query,
+                    f"<mark>{query}</mark>"
+                )
+
             else:
                 highlighted = text
 
@@ -263,8 +319,10 @@ if st.session_state.page == "Home":
             unsafe_allow_html=True
             )
 
-            if st.button("Copy", key=f"copy{i}"):
+            if st.button("Copy", key=f"copy_{i}"):
+
                 st.toast("Copied to clipboard")
+
 
     # ------------------------------------------------
     # LATENCY GRAPH
@@ -285,6 +343,7 @@ if st.session_state.page == "Home":
         )
 
         st.plotly_chart(fig, use_container_width=True)
+
 
 # ------------------------------------------------
 # CLUSTERS PAGE
@@ -307,8 +366,9 @@ elif st.session_state.page == "Clusters":
 
         st.plotly_chart(fig, use_container_width=True)
 
+
 # ------------------------------------------------
-# FEATURES PAGE
+# FEATURES
 # ------------------------------------------------
 
 elif st.session_state.page == "Features":
@@ -324,8 +384,9 @@ elif st.session_state.page == "Features":
 📈 Cluster Visualization
 """)
 
+
 # ------------------------------------------------
-# DOCS PAGE
+# DOCS
 # ------------------------------------------------
 
 elif st.session_state.page == "Docs":
@@ -344,8 +405,9 @@ Semantic Cache
 Re-ranked Results
 """)
 
+
 # ------------------------------------------------
-# ABOUT PAGE
+# ABOUT
 # ------------------------------------------------
 
 elif st.session_state.page == "About":
@@ -353,12 +415,14 @@ elif st.session_state.page == "About":
     col1,col2 = st.columns([1,2])
 
     with col1:
+
         st.image(
             "https://cdn-icons-png.flaticon.com/512/6997/6997662.png",
             width=150
         )
 
     with col2:
+
         st.markdown("""
 ## Bhumistha Sahoo
 
@@ -379,6 +443,7 @@ Technologies used:
 - Docker
 """)
 
+
 # ------------------------------------------------
 # FOOTER
 # ------------------------------------------------
@@ -388,7 +453,7 @@ st.markdown("---")
 st.markdown("""
 <center>
 
-Built by **Bhumistha Sahoo**
+Built by <b>Bhumistha Sahoo</b>
 
 AI / ML Engineer  
 Semantic Search • Intelligent Systems
